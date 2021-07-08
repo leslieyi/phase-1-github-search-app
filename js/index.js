@@ -1,15 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
-    fetchAllUsers()
-    // fetchAllRepo()
     form()
 })
 
-//Form fuck these forms
+//Form
 function form() {
     document.getElementById('github-form').addEventListener('submit', (e) => {
         e.preventDefault()
 
-        console.log(e.target.search.value)
+        fetchAllUsers(e.target.search.value)
 
     })
 
@@ -18,44 +16,55 @@ function form() {
 
 //GET Requests -----------------------------------------
 function fetchAllUsers(user) {
+    document.querySelector('#user-list').innerHTML = ""
     fetch(`https://api.github.com/search/users?q=${user}`)
         .then(res => res.json())
-        .then(json => json.items.forEach(rederUsers))
+        .then(json => json.items.forEach(renderUser)) //toMake each of the elements based on the user
 }
 
-// function fetchAllRepo( ) {
-// fetch("https://api.github.com/users/octocat/repos")
-// .then(res => res.json())
-// .then(json => console.log(json))
+function fetchAllRepos(login) {
+    document.querySelector('#repos-list').innerHTML = ""
+    fetch(`https://api.github.com/users/${login}/repos`)
+        .then(res => res.json())
+        .then(json => json.forEach(renderRepo))
 
-// }
+}
 
 
 //Rendering -----------------------------------------
-function rederUsers(userId) {
+function renderUser(user) {
+    //Draw out how the card is going to look like, this case
     //making Elements
-    let idLink= document.createElement('a')
     let idList = document.createElement('li')
+    let idLink = document.createElement('a')
     let idImg = document.createElement('img')
+    let idDiv = document.createElement('div')
 
-    //making Elements Class Name
-    idList.class = 'user-id'
-    idImg.class = 'user-image'
-    // idImg.src = I dont know this part??? userId.avatar-url didn't work.
+    //class Name
+    idImg.className = 'avatar'
+
 
     //giving some content
-    idLink.textContent = `GitHub Page of ${userId.login}`
-    idLink.href = " " // equal to empty string? but why? I don't know what's happening here
+    idDiv.textContent = user.login
+    idImg.src = user.avatar_url
 
-    console.log(idList)
+    //appending it
+    idLink.append(idImg, idDiv)
+    idList.append(idLink)
+    idLink.href = "#repos-list"
+    idLink.addEventListener('click', () => {
+        fetchAllRepos(user.login)
+    })
     
-    //Append and Shit
-    // document.querySelector('#user-list').append(idList, idLink, idImg)
+    document.querySelector('#user-list').append(idList)
 
-    // document.querySelector('')
 
 }
 
-
+function renderRepo(repo) {
+    let repoList = document.createElement('li')
+    repoList.textContent = repo.full_name
+    document.querySelector("#repos-list").append(repoList)
+}
 
 
